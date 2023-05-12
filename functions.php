@@ -82,7 +82,14 @@ function add_term_meta( int $term_id, string $meta_key, $meta_value, bool $uniqu
 	$type_prefix = TYPE_PREFIX[ 'meta' ];
 
 	if ( \is_null( $type ) ) {
-		$type = get_debug_type( $meta_value );
+		$type = get_term_meta( $term_id, $meta_key, true );
+		$no_pre = ! $type;
+
+		if ( $no_pre ) {
+			$type = get_debug_type( $meta_value );
+		}
+	} else {
+		$no_pre = true;
 		$type = get_valid_type( $type );
 	}
 
@@ -91,7 +98,7 @@ function add_term_meta( int $term_id, string $meta_key, $meta_value, bool $uniqu
 	}
 	$res = \add_term_meta( $term_id, $meta_key, $meta_value );
 
-	if ( ! \is_wp_error( $res ) && $type ) {
+	if ( $no_pre && ! \is_wp_error( $res ) && $type ) {
 		\update_term_meta( $term_id, $type_prefix . $meta_key, $type );
 	}
 	return $res;
@@ -122,7 +129,7 @@ function get_term_meta( int $term_id, string $key = '', bool $single = false ) {
 	$type  = get_valid_type( $type );
 	$value = \get_term_meta( $term_id, $key, $single );
 
-	if ( $type && $single ) {
+	if ( $type ) {
 		\settype( $value, $type );
 	}
 	return $value;

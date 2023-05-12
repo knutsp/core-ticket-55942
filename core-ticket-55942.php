@@ -6,7 +6,7 @@ namespace knutsp;
  * Plugin Name:      	Set data type in db for options/meta
  * Description:      	Demo add/updating and getting options/meta as proposed by knutsp in https://core.trac.wordpress.org/ticket/55942#comment:78.
  * Plugin URI:       	https://nettvendt.no/
- * Version:          	1.0
+ * Version:          	1.1
  * Author:           	Knut Sparhell
  * Author URI:       	https://profiles.wordpress.org/knutsp/
  * Requires at least:	6.2
@@ -67,13 +67,18 @@ include 'functions.php';
 		<div class="wrap">
 			<h1><?php echo \get_admin_page_title(); ?></h1>
 <?php
+			// Initilaize some variables always used
+			$name = \wp_get_current_user()->user_login;
+			$type = 'str';
+			$exp_type = '';
+			$explicit = false;
+
 			if ( $_SERVER['REQUEST_METHOD'] === 'POST' ) {
 //			var_dump( $_POST );
 
 				if ( \wp_verify_nonce( $_POST['_wpnonce'], '-1' ) ) {
 //					var_dump( $_POST );
 					$action = \sanitize_key( $_POST['action'] ?? '' );
-//					echo $action;
 
 					switch ( $action ) {
 						case 'option':
@@ -113,57 +118,54 @@ include 'functions.php';
 								case 'obj':
 								case 'object':
 									$values = (object) $raw_values;
-									$raw_values = (object) $raw_values;
 									break;
 								default:
 									$values = \array_map( 'sanitize_text_field', $raw_values );
 							}
 //							echo '<p class="msg">Posted: '; \var_dump( $values ); echo \var_export( $values, true ), '</p>';
+							$num_values = \count( $values );
 
-							if ( $name ) {
+							if ( $name && $num_values ) {
+								\wp_using_ext_object_cache( false );
+								$is_scalar = ! \in_array( \substr( $type, 0, 3 ), [ 'arr', 'obj' ] );
 
-								if ( \is_scalar( \end( $values ) ) && \count( (array) $values ) === 1 ) {
-									$raw_values = \end( $raw_values );
+								if ( $is_scalar && $num_values === 1 ) {	// Save as single value
 									$values = \end( $values );
 								}
-								\wp_using_ext_object_cache( false );
-								$e_type = \is_scalar( $values ) ? ' (' . ( $explicit ? 'explicit ' . $exp_type . ' ' . \var_export( $values, true ) : 'implicit ' . get_debug_type( $values ) . '/' . \gettype( $values ) ) . ')' : '';
-								$a_type = $explicit ? $exp_type : null;
-//								$values = $explicit ? $raw_values : $values;
+								$echo_type = $is_scalar ? ' (' . ( $explicit ? 'explicit ' . $exp_type . ' ' . \var_export( $values, true ) : 'implicit ' . get_debug_type( $values ) . '/' . \gettype( $values ) ) . ')' : '';
+								$arg_type  = $explicit ? $exp_type : null;
 
 								switch ( $action ) {
 									case 'option':
-										$type_p = '_option_type_';
-										echo '<p class="msg">Save as <code>', $action, '</code> name <code>', $option_name, '</code> value: ', \var_export( $values, true ), $e_type, '</p>';
-										update_option( $option_name, $values, false, $a_type );
+										$type_pfx = '_option_type_';
+										echo '<p class="msg">Save as <code>', $action, '</code> name <code>', $option_name, '</code> value: ', \var_export( $values, true ), $echo_type, '</p>';
+										update_option( $option_name, $values, false, $arg_type );
 										\wp_cache_flush();
 										$value = get_option( $option_name );
 										echo '<p class="msg">Get value: ', \var_export( $value, true ), ' (' . get_debug_type( $value ) . '/' . \gettype( $value ), ')</p>';
 										break;
 									case 'meta-single':
-										$type_p = '_meta_type_';
-										echo '<p class="msg">Save as <code>', $action, '</code> key <code>', $option_name, '</code> value: ', \var_export( $values, true ), $e_type, '</p>';
-										update_term_meta( $term_id, $meta_key, $values, null, $a_type );
+										$type_pfx = '_meta_type_';
+										echo '<p class="msg">Save as <code>', $action, '</code> key <code>', $option_name, '</code> value: ', \var_export( $values, true ), $echo_type, '</p>';
+										update_term_meta( $term_id, $meta_key, $values, null, $arg_type );
 										\wp_cache_flush();
 										$value = get_term_meta( $term_id, $meta_key, true );
 										echo '<p class="msg">Get value: ', \var_export( $value, true ), ' (' . get_debug_type( $value ) . '/' . \gettype( $value ), ')</p>';
 										break;
 									case 'meta-repeat':
-										$type_p = '_meta_type_';
-										\delete_term_meta( $term_id, $meta_key );
-										\delete_term_meta( $term_id, $type_p . $meta_key );
+										$type_pfx = '_meta_type_';
 
 										foreach ( (array) $values as $value ) {
-											$e_type = \is_scalar( $value ) ? ' (' . ( $explicit ? 'explicit ' . $exp_type . ' ' . \var_export( $value, true ) : 'implicit ' . get_debug_type( $value ) . '/' . \gettype( $value ) ) . ')' : '';
-											echo '<p class="msg">Save as <code>', $action, '</code> key <code>', $meta_key, '</code> value: ', \var_export( $value, true ), $e_type, '</p>';
-											add_term_meta( $term_id, $meta_key, $value, false );
+											$echo_type = $is_scalar ? ' (' . ( $explicit ? 'explicit ' . $exp_type . ' ' . \var_export( $value, true ) : 'implicit ' . get_debug_type( $value ) . '/' . \gettype( $value ) ) . ')' : '';
+											echo '<p class="msg">Save as <code>', $action, '</code> key <code>', $meta_key, '</code> value: ', \var_export( $value, true ), $echo_type, '</p>';
+											add_term_meta( $term_id, $meta_key, $value, false, $arg_type );
 											\wp_cache_flush();
 										}
 										$value = get_term_meta( $term_id, $meta_key );
 										echo '<p class="msg">Get values: ', \var_export( $value, true ), '</p>';
 										break;
 								}
-							\wp_cache_init();
+								\wp_cache_init();
 							} else {
 								echo '<p>Error: Missing option name</p>';
 							}
@@ -174,10 +176,16 @@ include 'functions.php';
 								$ids = [ 'options' => 'option_id',     'termmeta' => 'meta_id'     ][ $table ];
 								$col = [ 'options' => 'option_name',   'termmeta' => 'meta_key'    ][ $table ];
 								$typ = [ 'options' => '_option_type_', 'termmeta' => '_meta_type_' ][ $table ];
-								$del = $wpdb->get_col( $wpdb->prepare( "SELECT `{$ids}` FROM `{$wpdb->$table}` WHERE `$col` LIKE %s OR `$col` LIKE %s;", $pfx . '%', $typ . '%' ) );
+
+								$del = $wpdb->get_col(
+									$wpdb->prepare( "SELECT `{$ids}` FROM `{$wpdb->$table}` WHERE `$col` LIKE %s OR `$col` LIKE %s;",
+										$pfx . '%',
+										$typ . '%',
+									)
+								);
 
 								if ( \count( $del ) > 100 ) {
-									\wp_die( 'Error: To many rows to delete. Something is very, wrong.' );
+									\wp_die( 'Error: Too many rows to delete (' . $del . '). Something is very, wrong.' );
 								}
 
 								if ( \is_array( $del ) ) {
@@ -191,12 +199,8 @@ include 'functions.php';
 							break;
 					}
 				} else {
-					\wp_die ( '<p>Error: Invalid or missing once</p>' );
+					\wp_die ( '<p>Error: Invalid or missing nonce</p>' );
 				}
-			} else {
-				$name = \wp_get_current_user()->user_login;
-				$type = 'str';
-				$explicit = false;
 			}
 
 			foreach ( [ 'options', 'termmeta' ] as $table ) {
@@ -259,11 +263,11 @@ include 'functions.php';
 							<input type="checkbox" name="values[]" value="0"/> 0<br/>
 							<input type="checkbox" name="values[]" value="00"/> 00<br/>
 							<input type="checkbox" name="values[]" value="123"/> 123<br/>
-							<input type="checkbox" name="values[]" value="0123"/> 0123<br/>
+							<input type="checkbox" name="values[]" value="0246"/> 0246<br/>
 							<input type="checkbox" name="values[]" value="<?php echo \pi(); ?>" title="pi"/> <?php echo \pi(); ?><br/>
 							<input type="checkbox" name="values[]" value="4-four"/> '4-four'<br/>
-							<input type="checkbox" name="values[]" value="E12"/> 'E12'<br/>
-							<input type="checkbox" name="values[]" value="some text"/> 'some text'<br/>
+							<input type="checkbox" name="values[]" value="E12"/> E12<br/>
+							<input type="checkbox" name="values[]" value="some text"/> some text<br/>
 						<label>
 					</p>
 					<p>
