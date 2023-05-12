@@ -11,6 +11,12 @@ Proposed signature: `add_option( string $option, mixed $value = '', string $depr
 
 Alternatively: No change, use `update_option()` to save type?
 
+# add_site_option
+
+Current signature:  `add_site_option( string $option, mixed $value ): bool`
+
+Proposed signature: `add_site_option( string $option, mixed $value, ?string $type = null ): bool`
+
 # update_option
 
 Current signature:  `update_option( string $option, mixed $value, string|bool $autoload = null ): bool`
@@ -24,6 +30,14 @@ else detect the type of $value, use as implicit $type.
 Add or update the option value in db
 If successful, add or update an extra option, with a prefixed $option as "_option_type_$option" with the value of $type.
 
+# update_site_option
+
+Current signature:  `update_site_option( string $option, mixed $value ): bool`
+
+Proposed signature: `update_site_option( string $option, mixed $value, ?string $type = null ): bool`
+
+See `update_option`
+
 # get_option
 Current signature unchanged: `get_option( string $option, mixed $default_value = false ): mixed`
 
@@ -32,13 +46,23 @@ $type is fetched from a prefixed $option as "_option_type_$option"
 After the $value is fetched, and the $type is found and valid, perform `settype( $value, $type )`before returning it
 
 # add_metadata
-(todo)
 
-# add_meta
-(todo)
+Current signature:  `add_metadata( string $meta_type, int $object_id, string $meta_key, mixed $meta_value, bool $unique = false ): int|false`
+
+Proposed signature: `add_metadata( string $meta_type, int $object_id, string $meta_key, mixed $meta_value, bool $unique = false, ?string $type = null ): int|false`
 
 # update_meta
-(todo)
+
+Current signature:  `update_meta( int $meta_id, string $meta_key, string $meta_value ): bool`
+
+Proposed signature: `update_meta( int $meta_id, string $meta_key, string $meta_value, ?string $type = null ): bool`
+
+## Logic
+If $type is given and not null, use as explicit $type.
+else detect the type of $value, use as implicit $type.
+
+Update the meta value in db
+If successful, add or update an extra meta_key, with a prefixed $meta_key as "_meta_type_$meta_key" with the value of $type.
 
 # update_{$object_type}_meta
 
