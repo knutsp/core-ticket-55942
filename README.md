@@ -25,7 +25,7 @@ Add or update the option value in db
 If successful, add or update an extra option, with a prefixed $option as "_option_type_$option" with the value of $type.
 
 # get_option
-Current siganture unchanged: `get_option( string $option, mixed $default_value = false ): mixed`
+Current signature unchanged: `get_option( string $option, mixed $default_value = false ): mixed`
 
 ## Logic
 $type is fetched from a prefixed $option as "_option_type_$option"
@@ -55,9 +55,9 @@ If successful, add or update an extra meta_key, with a prefixed $meta_key as "_m
 
 # add_{$object_type}_meta
 
-Current signatures:  `add_{$object_type}_meta( int $term_id, string $meta_key, mixed $meta_value, bool $unique = false ): int|false|WP_Error`
+Current signatures:  `add_{$object_type}_meta( int $obj_id, string $meta_key, mixed $meta_value, bool $unique = false ): int|false|WP_Error`
 
-Proposed signatures: `add_{$object_type}_meta( int $term_id, string $meta_key, mixed $meta_value, bool $unique = false, ?string $type = null ): int|false|WP_Error`
+Proposed signatures: `add_{$object_type}_meta( int $obj_id, string $meta_key, mixed $meta_value, bool $unique = false, ?string $type = null ): int|false|WP_Error`
 
 ## Logic
 If $type is given and not null, use as explicit $type.
