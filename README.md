@@ -68,4 +68,7 @@ Add the meta value in db
 If successful and ( $type did not already exist or have expplicit $type given),
 add or update an extra meta_key, with a prefixed $meta_key as "_meta_type_$meta_key" with the value of $type.
 
-In other words: To change the stoed type of a meta_key that already exists, explcit type must be used, implicit type will only be added if type did not exists
+In other words: To change the stored type of a meta_key that already exists, explcit type must be used, implicit type will only be added if type did not exists
+
+# get_metadata
+(todo)
