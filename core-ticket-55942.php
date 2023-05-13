@@ -6,7 +6,7 @@ namespace knutsp;
  * Plugin Name:      	Set data type in db for options/meta
  * Description:      	Demo add/updating and getting options/meta as proposed by knutsp in https://core.trac.wordpress.org/ticket/55942#comment:78.
  * Plugin URI:       	https://nettvendt.no/
- * Version:          	1.1
+ * Version:          	2.0
  * Author:           	Knut Sparhell
  * Author URI:       	https://profiles.wordpress.org/knutsp/
  * Requires at least:	6.2
@@ -265,7 +265,7 @@ include 'functions.php';
 							<input type="checkbox" name="values[]" value="123"/> 123<br/>
 							<input type="checkbox" name="values[]" value="0246"/> 0246<br/>
 							<input type="checkbox" name="values[]" value="<?php echo \pi(); ?>" title="pi"/> <?php echo \pi(); ?><br/>
-							<input type="checkbox" name="values[]" value="4-four"/> '4-four'<br/>
+							<input type="checkbox" name="values[]" value="4-four"/> 4-four<br/>
 							<input type="checkbox" name="values[]" value="E12"/> E12<br/>
 							<input type="checkbox" name="values[]" value="some text"/> some text<br/>
 						<label>
