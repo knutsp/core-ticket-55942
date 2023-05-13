@@ -60,7 +60,7 @@ function update_option( string $option, $value, $autoload = null, ?string $type 
 	}
 	$upd = \update_option( $option, $value, $autoload );
 
-	if ( $upd && ! \str_contains( $type, 'str' ) ) {
+	if ( $upd && ! \str_starts_with( $type, 'str' ) ) {
 		\update_option( $type_prefix . $option, $type, $autoload );
 	}
 	return (bool) $upd;
@@ -98,7 +98,7 @@ function add_term_meta( int $term_id, string $meta_key, $meta_value, bool $uniqu
 	}
 	$res = \add_term_meta( $term_id, $meta_key, $meta_value );
 
-	if ( $no_pre && ! \is_wp_error( $res ) && ! \str_contains( $type, 'str' ) ) {
+	if ( $no_pre && ! \is_wp_error( $res ) && ! \str_starts_with( $type, 'str' ) ) {
 		\update_term_meta( $term_id, $type_prefix . $meta_key, $type );
 	}
 	return $res;
@@ -117,7 +117,7 @@ function update_term_meta( int $term_id, string $meta_key, $meta_value, ?string 
 	}
 	$res = \update_term_meta( $term_id, $meta_key, $meta_value, $prev_value );
 
-	if ( ! \is_wp_error( $res ) && ! \str_contains( $type, 'str' ) ) {
+	if ( ! \is_wp_error( $res ) && ! \str_starts_with( $type, 'str' ) ) {
 		\update_term_meta( $term_id, $type_prefix . $meta_key, $type );
 	}
 	return $res;
