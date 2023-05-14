@@ -1,6 +1,8 @@
 # core-ticket-55942
 Demo add/updating and getting options/meta as proposed by knutsp in https://core.trac.wordpress.org/ticket/55942#comment:78.
 
+See file [functions.php](https://github.com/knutsp/core-ticket-55942/blob/main/functions.php) for the logic. This not a patch, not even close to.
+
 Go to Tools - Demo options/meta (wp-admin/tools.php?page=core-ticket-55942) for an UI
 
 # The problem (as I have understood it)
@@ -11,7 +13,7 @@ Storing metadata does not preserve the scalar type of data saved. `get_option/ge
 
 # Possible solutions
 
-1, Always use `register_settings` or `register_meta`. Curently thse registers is not quite compatible with PHP typing. See emarly comments by @azaozz on the ticket.
+1, Always use `register_settings` or `register_meta`. Currently these registers is not quite compatible with PHP typing. See early comments by @azaozz on the ticket.
 2. Always cast the value after return from these functions, before strict comparison, passing on to methods/functions or to class properties. Need to know the initial intended type when saved, or loose som informations held by the type
 3. Add a $type argument to the `get` functions, whcich will internally cast the return value
 4. Add an extra column in the options and all meta db-tables to hold type, cast on return. Such table changes will be quite heavy, have to be the only sane way to do this.
