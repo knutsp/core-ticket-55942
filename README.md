@@ -17,7 +17,7 @@ Storing metadata does not preserve the scalar type of data saved. `get_option/ge
 4. Add an extra column in the options and all meta db-tables to hold type, cast on return. Such table changes will be quite heavy, have to be the only sane way to do this.
 5. Add an extra row in the db-tables, in case data is not saved as string (default). This opens for two variants
  - Implicit type. Type is determid by 'gettype()' or `get_debug_type()`, and an extra option or meta is saved, unless it's string. 
- - Expplict type. Type is given as an extra $type argument (as string, defaults to 'string' or ''). Must be sanitized, but may allw for shorthand names ('bool', 'str', 'arr', 'obj')
+ - Explicit type. Type is given as an extra $type argument (as string, defaults to 'string' or ''). Must be sanitized, but may allw for shorthand names ('bool', 'str', 'arr', 'obj')
  - Implicit OR explicit type, by allowing $type to be null for implicit type. This my proposal.
 
 # add_option
