@@ -1,7 +1,24 @@
 # core-ticket-55942
 Demo add/updating and getting options/meta as proposed by knutsp in https://core.trac.wordpress.org/ticket/55942#comment:78.
 
-Go to wp-admin/tools.php?page=core-ticket-55942 for an UI
+Go to Tools - Demo options/meta (wp-admin/tools.php?page=core-ticket-55942) for an UI
+
+# The problem (as I have understood it)
+
+Storing metadata does not preserve the scalar type of data saved. `get_option/get_metadata` returns strings, even when the saved data originally was one of bool|int|float, unless data is cached, the original typing is preserved. And maybe unless registered. With more (strict) comparison, typing of parametres and properties in PHP this can lead to errors, even fatal ones. If saved data is not scalar, then the data is serialized before saving. On retrieving data `maybe_unserialize` is called to ensure serialized data is unswerialized. This is know to be slow.
+ 1. Non scalar incnosistency
+ 2. Bad performance having tp check all data for serialization and maybe do unserialization
+
+# Possible solutions
+
+1, Always use `register_settings` or `register_meta`. Curently thse registers is not quite compatible with PHP typing. See emarly comments by @azaozz on the ticket.
+2. Always cast the value after return from these functions, before strict comparison, passing on to methods/functions or to class properties. Need to know the initial intended type when saved, or loose som informations held by the type
+3. Add a $type argument to the `get` functions, whcich will internally cast the return value
+4. Add an extra column in the options and all meta db-tables to hold type, cast on return. Such table changes will be quite heavy, have to be the only sane way to do this.
+5. Add an extra row in the db-tables, in case data is not saved as string (default). This opens for two variants
+ - Implicit type. Type is determid by 'gettype()' or `get_debug_type()`, and an extra option or meta is saved, unless it's string. 
+ - Expplict type. Type is given as an extra $type argument (as string, defaults to 'string' or ''). Must be sanitized, but may allw for shorthand names ('bool', 'str', 'arr', 'obj')
+ - Implicit OR explicit type, by allowing $type to be null for implicit type. This my proposal.
 
 # add_option
 
